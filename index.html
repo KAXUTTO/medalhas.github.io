@@ -1,0 +1,656 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gold:#B8860B;--gold-light:#DAA520;--gold-pale:#FDF8EC;--gold-border:#E8C84A;
+  --navy:#0D1B3E;--navy-mid:#1A2F5E;--navy-light:#2A4480;
+  --red:#8B0000;--cream:#FFFDF7;--gray:#F5F3EE;--muted:#6B6455;
+  --border:#D4C9A8;--text:#1A1610;--text2:#4A3F2F;
+  --success:#1B5E20;--danger:#8B0000;--radius:6px;
+}
+body{font-family:'Barlow',sans-serif;background:var(--cream);color:var(--text);min-height:100vh}
+
+#login-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;background:#0D1B3E;padding:2rem}
+.login-card{background:var(--cream);border:2px solid var(--gold-border);border-radius:12px;padding:3rem 2.5rem;max-width:440px;width:100%;text-align:center}
+.login-logo{width:120px;height:120px;margin:0 auto 1.5rem;display:flex;align-items:center;justify-content:center}
+.login-logo img{width:100%;height:100%;object-fit:contain}
+.login-card h1{font-family:'EB Garamond',serif;font-size:1.5rem;color:var(--navy);margin-bottom:.4rem;line-height:1.3}
+.login-card .subtitle{color:var(--muted);font-size:.85rem;margin-bottom:1.5rem;border-top:1px solid var(--border);padding-top:1rem;margin-top:.5rem}
+.login-form{text-align:left}
+.login-form label{display:block;font-size:.8rem;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.4rem}
+.login-form input[type=password]{width:100%;padding:.75rem 1rem;border:1.5px solid var(--border);border-radius:var(--radius);font-size:1rem;font-family:inherit;outline:none;transition:border .2s}
+.login-form input:focus{border-color:var(--navy)}
+.login-btn{width:100%;margin-top:1rem;padding:.85rem;background:var(--navy);color:#fff;border:none;border-radius:var(--radius);font-size:.95rem;font-weight:600;cursor:pointer;letter-spacing:.03em;transition:background .2s}
+.login-btn:hover{background:var(--navy-mid)}
+.login-error{color:var(--red);font-size:.82rem;margin-top:.5rem;min-height:1.2em;text-align:center}
+.login-note{font-size:.76rem;color:var(--muted);margin-top:1.25rem;text-align:center}
+
+#app{display:none;min-height:100vh;flex-direction:column}
+header{background:var(--navy);color:#fff;padding:.6rem 1.5rem;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid var(--gold-border)}
+.header-left{display:flex;align-items:center;gap:.85rem}
+.header-logo{width:42px;height:42px;flex-shrink:0}
+.header-logo img{width:100%;height:100%;object-fit:contain}
+.header-title{font-family:'EB Garamond',serif;font-size:1.1rem;line-height:1.2}
+.header-title small{display:block;font-family:'Barlow',sans-serif;font-size:.68rem;opacity:.65;letter-spacing:.06em;text-transform:uppercase}
+.header-right{display:flex;align-items:center;gap:.5rem}
+.logout-btn{background:transparent;border:1px solid rgba(255,255,255,.3);color:#fff;padding:.35rem .85rem;border-radius:4px;font-size:.78rem;cursor:pointer;transition:all .2s;white-space:nowrap}
+.logout-btn:hover{background:rgba(255,255,255,.1)}
+
+.main-nav{background:var(--navy-mid);padding:0 1.5rem;display:flex;align-items:center;gap:0;border-bottom:2px solid var(--gold-border);flex-wrap:wrap}
+.nav-tab{padding:.8rem 1.4rem;color:rgba(255,255,255,.65);cursor:pointer;font-size:.88rem;font-weight:500;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .2s;display:flex;align-items:center;gap:.4rem;white-space:nowrap}
+.nav-tab.active{color:#fff;border-bottom-color:var(--gold-light)}
+.nav-tab:hover:not(.active){color:rgba(255,255,255,.9);background:rgba(255,255,255,.05)}
+.nav-spacer{flex:1}
+.nav-action-btn{display:flex;align-items:center;gap:.4rem;padding:.5rem 1rem;border-radius:4px;font-size:.8rem;font-weight:600;cursor:pointer;border:none;white-space:nowrap;margin:auto 0;letter-spacing:.02em;transition:all .2s}
+.btn-export{background:var(--gold);color:#fff;margin-right:.4rem}
+.btn-export:hover{background:var(--gold-light)}
+.btn-import{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3)}
+.btn-import:hover{background:rgba(255,255,255,.25)}
+
+.content{flex:1;padding:2rem;max-width:1200px;margin:0 auto;width:100%}
+
+/* HOME PAGE */
+.home-hero{background:var(--navy);border-radius:12px;padding:2.5rem;text-align:center;margin-bottom:2rem;border:2px solid var(--gold-border);position:relative;overflow:hidden}
+.home-hero-logo{width:100px;height:100px;margin:0 auto 1.25rem}
+.home-hero-logo img{width:100%;object-fit:contain}
+.home-hero h2{font-family:'EB Garamond',serif;font-size:1.8rem;color:#fff;margin-bottom:.5rem}
+.home-hero p{color:rgba(255,255,255,.7);font-size:.9rem}
+.home-alert{background:#FFF8E1;border:1.5px solid #F9A825;border-radius:8px;padding:1.25rem 1.5rem;display:flex;align-items:flex-start;gap:1rem;margin-bottom:2rem}
+.home-alert-icon{font-size:1.6rem;flex-shrink:0;margin-top:-.1rem}
+.home-alert h3{font-size:1rem;font-weight:600;color:#5D4200;margin-bottom:.3rem}
+.home-alert p{font-size:.88rem;color:#6D5000;line-height:1.6}
+.home-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;margin-bottom:2rem}
+.stat-card{background:#fff;border:1px solid var(--border);border-radius:8px;padding:1.25rem;text-align:center}
+.stat-card .num{font-size:2rem;font-weight:700;color:var(--navy);line-height:1}
+.stat-card .lbl{font-size:.78rem;color:var(--muted);margin-top:.4rem;text-transform:uppercase;letter-spacing:.04em}
+.home-actions{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.home-action-btn{background:#fff;border:1.5px solid var(--border);border-radius:8px;padding:1.5rem;cursor:pointer;transition:all .2s;text-align:left;display:flex;align-items:center;gap:1rem}
+.home-action-btn:hover{border-color:var(--navy);background:var(--gold-pale)}
+.home-action-icon{width:44px;height:44px;background:var(--navy);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;border:1px solid var(--gold-border)}
+.home-action-title{font-weight:600;color:var(--navy);font-size:.95rem}
+.home-action-desc{font-size:.8rem;color:var(--muted);margin-top:.2rem}
+
+.section-header{display:flex;align-items:center;gap:1rem;margin-bottom:2rem;padding-bottom:1rem;border-bottom:1px solid var(--border)}
+.section-icon{width:44px;height:44px;background:var(--navy);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;border:1px solid var(--gold-border);flex-shrink:0}
+.section-title{font-family:'EB Garamond',serif;font-size:1.5rem;color:var(--navy)}
+
+.form-card{background:#fff;border:1px solid var(--border);border-radius:8px;padding:2rem}
+.form-row{display:grid;gap:1.25rem;margin-bottom:1.25rem}
+.form-row.cols-2{grid-template-columns:1fr 1fr}
+.form-row.cols-3{grid-template-columns:1fr 1fr 1fr}
+.form-group{display:flex;flex-direction:column;gap:.4rem}
+label{font-size:.8rem;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.04em}
+label .req{color:var(--red)}
+input,select{padding:.65rem .9rem;border:1px solid var(--border);border-radius:var(--radius);font-size:.95rem;font-family:'Barlow',sans-serif;color:var(--text);background:#fff;transition:border .2s;outline:none}
+input:focus,select:focus{border-color:var(--navy)}
+.hint{font-size:.74rem;color:var(--muted)}
+.field-divider{border:none;border-top:1px dashed var(--border);margin:1rem 0}
+
+.cat-badge{display:inline-flex;align-items:center;gap:.4rem;padding:.3rem .75rem;border-radius:4px;font-size:.75rem;font-weight:600;letter-spacing:.03em;margin-bottom:1rem}
+.cat-1{background:#E3EDF8;color:#1A3A6B}.cat-2{background:#FCE8E8;color:#7A0000}
+.cat-3{background:#E8F2E8;color:#1B4A1B}.cat-4{background:#F5EAD8;color:#6B4400}
+
+.btn{padding:.65rem 1.4rem;border-radius:var(--radius);font-size:.88rem;font-weight:600;cursor:pointer;border:none;transition:all .2s;display:inline-flex;align-items:center;gap:.45rem;letter-spacing:.02em}
+.btn-primary{background:var(--navy);color:#fff}.btn-primary:hover{background:var(--navy-mid)}
+.btn-gold{background:var(--gold);color:#fff}.btn-gold:hover{background:var(--gold-light)}
+.btn-outline{background:transparent;color:var(--navy);border:1.5px solid var(--navy)}.btn-outline:hover{background:var(--navy);color:#fff}
+.btn-danger{background:var(--red);color:#fff}
+.btn-sm{padding:.38rem .9rem;font-size:.8rem}
+.btn-actions{display:flex;gap:.75rem;margin-top:1.75rem;padding-top:1.5rem;border-top:1px solid var(--border)}
+
+.op-log{background:var(--gold-pale);border:1px solid var(--gold-border);border-radius:6px;padding:.65rem 1rem;font-size:.8rem;color:var(--muted);display:flex;align-items:center;gap:.5rem;margin-bottom:1.5rem}
+.op-log strong{color:var(--gold)}
+
+.search-card{background:#fff;border:1px solid var(--border);border-radius:8px;padding:1.5rem;margin-bottom:1.5rem}
+.search-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto;gap:.75rem;align-items:end}
+.search-results-wrap{overflow-x:auto}
+
+table{width:100%;border-collapse:collapse;font-size:.84rem}
+thead tr{background:var(--navy);color:#fff}
+th{padding:.7rem 1rem;text-align:left;font-weight:600;font-size:.76rem;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
+td{padding:.65rem 1rem;border-bottom:1px solid var(--border);vertical-align:middle}
+tr:hover td{background:var(--gold-pale)}
+.no-results{text-align:center;padding:3rem;color:var(--muted)}
+
+.status-cell{display:flex;flex-direction:column;gap:.35rem}
+.status-check{display:flex;align-items:center;gap:.5rem;cursor:pointer;font-size:.82rem}
+.status-check input[type=checkbox]{width:15px;height:15px;cursor:pointer;accent-color:var(--navy)}
+.status-detail{background:var(--gray);border-radius:4px;padding:.3rem .55rem;font-size:.72rem;color:var(--text2);border-left:2px solid var(--gold)}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(13,27,62,.72);display:flex;align-items:center;justify-content:center;z-index:1000;padding:1rem}
+.modal{background:#fff;border-radius:10px;padding:2rem;max-width:480px;width:100%;border:1px solid var(--gold-border)}
+.modal h3{font-family:'EB Garamond',serif;font-size:1.25rem;color:var(--navy);margin-bottom:1.5rem}
+.modal-footer{display:flex;gap:.75rem;margin-top:1.5rem;justify-content:flex-end}
+.modal .form-group{margin-bottom:1rem}
+
+.toast{position:fixed;bottom:2rem;right:2rem;padding:.85rem 1.5rem;border-radius:8px;font-size:.88rem;font-weight:500;z-index:2000;box-shadow:0 4px 20px rgba(0,0,0,.2)}
+.toast.success{background:var(--success);color:#fff}
+.toast.error{background:var(--red);color:#fff}
+.toast.info{background:var(--navy);color:#fff}
+</style>
+
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <img src="/mnt/user-data/uploads/26FBC552-F014-43E4-9A20-FEE9847FDED4_L0_001-12_01_2023_10_04_02.png" alt="Brasão CBMAL" onerror="this.style.display='none';document.getElementById('login-emblem-fallback').style.display='flex'">
+      <div id="login-emblem-fallback" style="display:none;width:100%;height:100%;background:var(--navy);border-radius:50%;align-items:center;justify-content:center;font-size:2.5rem;border:3px solid var(--gold-border)">🏅</div>
+    </div>
+    <h1>Livro de Registro de Entrega de Medalhas</h1>
+    <div class="subtitle">Corpo de Bombeiros Militar de Alagoas</div>
+    <div class="login-form">
+      <label>Senha de acesso</label>
+      <input type="password" id="login-password" placeholder="Digite a senha" onkeydown="if(event.key==='Enter')doLogin()">
+      <div class="login-error" id="login-error"></div>
+      <button class="login-btn" onclick="doLogin()">🔐 Acessar o Sistema</button>
+    </div>
+    <p class="login-note">🔒 Acesso restrito. Todas as operações são registradas com data e hora.</p>
+  </div>
+</div>
+
+<div id="app">
+  <header>
+    <div class="header-left">
+      <div class="header-logo">
+        <img src="/mnt/user-data/uploads/26FBC552-F014-43E4-9A20-FEE9847FDED4_L0_001-12_01_2023_10_04_02.png" alt="CBMAL" onerror="this.style.display='none'">
+      </div>
+      <div class="header-title">
+        Livro de Registro de Medalhas
+        <small>Corpo de Bombeiros Militar de Alagoas — CBMAL</small>
+      </div>
+    </div>
+    <div class="header-right">
+      <span style="font-size:.8rem;color:rgba(255,255,255,.6);margin-right:.5rem" id="header-session"></span>
+      <button class="logout-btn" onclick="logout()">Sair</button>
+    </div>
+  </header>
+
+  <nav class="main-nav">
+    <div class="nav-tab active" onclick="switchTab('home',this)">🏠 Início</div>
+    <div class="nav-tab" onclick="switchTab('preenchimento',this)">📝 Preenchimento</div>
+    <div class="nav-tab" onclick="switchTab('consulta',this)">🔍 Consulta</div>
+    <div class="nav-spacer"></div>
+    <button class="nav-action-btn btn-export" onclick="exportar()">📥 Exportar CSV</button>
+    <button class="nav-action-btn btn-import" onclick="triggerImport()">📤 Importar CSV</button>
+    <input type="file" id="import-file-input" accept=".csv" style="display:none" onchange="importarCSV(this)">
+  </nav>
+
+  <div class="content">
+
+    <!-- HOME -->
+    <div id="section-home">
+      <div class="home-hero">
+        <div class="home-hero-logo">
+          <img src="/mnt/user-data/uploads/26FBC552-F014-43E4-9A20-FEE9847FDED4_L0_001-12_01_2023_10_04_02.png" alt="Brasão CBMAL" onerror="this.style.fontSize='3rem';this.outerHTML='<div style=\'font-size:3rem\'>🏅</div>'">
+        </div>
+        <h2>Livro de Registro de Entrega de Medalhas</h2>
+        <p>Corpo de Bombeiros Militar de Alagoas — ASCOM</p>
+      </div>
+
+      <div class="home-alert">
+        <div class="home-alert-icon">⚠️</div>
+        <div>
+          <h3>Atenção: uso complementar ao livro físico</h3>
+          <p>Este livro digital <strong>não substitui o livro físico</strong>, que deve ser preenchido e assinado regularmente conforme as normas vigentes. O registro digital serve como ferramenta auxiliar de consulta, controle e geração de relatórios.</p>
+        </div>
+      </div>
+
+      <div class="home-stats" id="home-stats">
+        <div class="stat-card"><div class="num" id="stat-total">0</div><div class="lbl">Registros totais</div></div>
+        <div class="stat-card"><div class="num" id="stat-cert">0</div><div class="lbl">Certificados entregues</div></div>
+        <div class="stat-card"><div class="num" id="stat-med">0</div><div class="lbl">Medalhas entregues</div></div>
+        <div class="stat-card"><div class="num" id="stat-pend">0</div><div class="lbl">Pendências</div></div>
+      </div>
+
+      <div class="home-actions">
+        <div class="home-action-btn" onclick="switchTab('preenchimento',document.querySelector('.nav-tab:nth-child(2)'))">
+          <div class="home-action-icon">📝</div>
+          <div>
+            <div class="home-action-title">Novo registro</div>
+            <div class="home-action-desc">Registrar entrega de medalha</div>
+          </div>
+        </div>
+        <div class="home-action-btn" onclick="switchTab('consulta',document.querySelector('.nav-tab:nth-child(3)'))">
+          <div class="home-action-icon">🔍</div>
+          <div>
+            <div class="home-action-title">Consultar registros</div>
+            <div class="home-action-desc">Buscar e confirmar entregas</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PREENCHIMENTO -->
+    <div id="section-preenchimento" style="display:none">
+      <div class="section-header">
+        <div class="section-icon">📝</div>
+        <div>
+          <div class="section-title">Registro de Entrega</div>
+          <small style="color:var(--muted);font-size:.8rem">Preencha os dados do agraciado com a medalha</small>
+        </div>
+      </div>
+      <div class="op-log">🛡️ Operador: <strong id="op-name-fill">—</strong> &nbsp;|&nbsp; Sessão: <strong id="op-time-fill">—</strong></div>
+      <div class="form-card">
+        <div class="form-row cols-2">
+          <div class="form-group">
+            <label>Categoria <span class="req">*</span></label>
+            <select id="categoria" onchange="onCatChange()" required>
+              <option value="">— Selecione a categoria —</option>
+              <option value="1">1 — Autoridades Civis</option>
+              <option value="2">2 — Militares do CBMAL</option>
+              <option value="3">3 — Militares da PMAL</option>
+              <option value="4">4 — Outros Estados / Coirmãs</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Data de Entrega <span class="req">*</span></label>
+            <input type="date" id="data-entrega" required>
+            <span class="hint">Pré-preenchido com o último cadastro salvo</span>
+          </div>
+        </div>
+        <hr class="field-divider">
+        <div id="fields-cat-1" style="display:none">
+          <div class="cat-badge cat-1">🏛️ Autoridade Civil</div>
+          <div class="form-row cols-2">
+            <div class="form-group"><label>Nome Completo <span class="req">*</span></label><input type="text" id="f1-nome" placeholder="Nome completo"></div>
+            <div class="form-group"><label>CPF <span class="req">*</span></label><input type="text" id="f1-cpf" placeholder="000.000.000-00" maxlength="14" oninput="maskCPF(this)"></div>
+          </div>
+        </div>
+        <div id="fields-cat-2" style="display:none">
+          <div class="cat-badge cat-2">🔥 Militar CBMAL</div>
+          <div class="form-row cols-2">
+            <div class="form-group"><label>Graduação / Patente <span class="req">*</span></label><input type="text" id="f2-grad" placeholder="Ex: Coronel BM..."></div>
+            <div class="form-group"><label>Nome Completo <span class="req">*</span></label><input type="text" id="f2-nome" placeholder="Nome completo"></div>
+          </div>
+        </div>
+        <div id="fields-cat-3" style="display:none">
+          <div class="cat-badge cat-3">🚔 Militar PMAL</div>
+          <div class="form-row cols-2">
+            <div class="form-group"><label>Graduação / Patente <span class="req">*</span></label><input type="text" id="f3-grad" placeholder="Ex: Delegado..."></div>
+            <div class="form-group"><label>Nome Completo <span class="req">*</span></label><input type="text" id="f3-nome" placeholder="Nome completo"></div>
+          </div>
+        </div>
+        <div id="fields-cat-4" style="display:none">
+          <div class="cat-badge cat-4">🌐 Outro Estado / Coirmã</div>
+          <div class="form-row cols-3">
+            <div class="form-group"><label>Graduação / Patente <span class="req">*</span></label><input type="text" id="f4-grad" placeholder="Graduação"></div>
+            <div class="form-group"><label>Nome Completo <span class="req">*</span></label><input type="text" id="f4-nome" placeholder="Nome completo"></div>
+            <div class="form-group"><label>Instituição <span class="req">*</span></label><input type="text" id="f4-inst" placeholder="Ex: CBMSE..."></div>
+          </div>
+        </div>
+        <div class="btn-actions">
+          <button class="btn btn-primary" onclick="salvarRegistro()">💾 Salvar Registro</button>
+          <button class="btn btn-outline" onclick="limparFormulario()">🔄 Limpar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONSULTA -->
+    <div id="section-consulta" style="display:none">
+      <div class="section-header">
+        <div class="section-icon">🔍</div>
+        <div>
+          <div class="section-title">Consulta de Registros</div>
+          <small style="color:var(--muted);font-size:.8rem">Busque e gerencie os registros de entrega</small>
+        </div>
+      </div>
+      <div class="op-log">🛡️ Operador: <strong id="op-name-cons">—</strong> &nbsp;|&nbsp; Sessão: <strong id="op-time-cons">—</strong></div>
+      <div class="search-card">
+        <div class="search-grid">
+          <div class="form-group"><label>Ano</label><input type="number" id="s-ano" placeholder="2024" min="2000" max="2099"></div>
+          <div class="form-group"><label>Nome</label><input type="text" id="s-nome" placeholder="Buscar por nome..."></div>
+          <div class="form-group"><label>Instituição</label><input type="text" id="s-inst" placeholder="Ex: CBMBA..."></div>
+          <div class="form-group"><label>CPF</label><input type="text" id="s-cpf" placeholder="000.000.000-00" maxlength="14" oninput="maskCPF(this)"></div>
+          <div class="form-group"><label>&nbsp;</label><button class="btn btn-primary" onclick="buscar()">🔍 Buscar</button></div>
+        </div>
+        <div style="margin-top:.75rem"><button class="btn btn-outline btn-sm" onclick="buscarTodos()">📋 Todos os Registros</button></div>
+      </div>
+      <div class="search-results-wrap">
+        <table id="results-table">
+          <thead><tr>
+            <th style="min-width:150px">Categoria</th>
+            <th style="min-width:105px">Data Entrega</th>
+            <th style="min-width:270px">Dados do Agraciado</th>
+            <th style="min-width:185px">📜 Certificado</th>
+            <th style="min-width:185px">🏅 Medalha Física</th>
+            <th style="min-width:100px">Operador</th>
+          </tr></thead>
+          <tbody id="results-body">
+            <tr><td colspan="6" class="no-results">Use a busca acima para consultar registros</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CONFIRMAÇÃO -->
+<div id="confirm-modal" class="modal-overlay" style="display:none">
+  <div class="modal">
+    <h3 id="modal-title">Confirmar Entrega</h3>
+    <div class="form-group"><label>Data <span class="req">*</span></label><input type="date" id="modal-data"></div>
+    <div class="form-group"><label>Nome do Recebedor <span class="req">*</span></label><input type="text" id="modal-recebedor" placeholder="Quem recebeu"></div>
+    <div class="form-group"><label>Operador</label><input type="text" id="modal-operador" readonly style="background:var(--gray)"></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-gold" onclick="confirmModal()">✔ Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL REMOÇÃO -->
+<div id="remove-modal" class="modal-overlay" style="display:none">
+  <div class="modal">
+    <h3>⚠️ Desfazer confirmação?</h3>
+    <p style="color:var(--muted);margin-bottom:1.5rem">Deseja remover a confirmação deste item?</p>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeRemoveModal()">Cancelar</button>
+      <button class="btn btn-danger" onclick="confirmRemove()">Remover</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SENHA='@ascommedalhas';
+const STORAGE_KEY='cbmal_registros_v2';
+let currentUser={name:'Operador ASCOM',email:'ascom@cbmal.al.gov.br'};
+let sessionStart=null;
+let pendingModal=null;
+let pendingRemove=null;
+let allRegistros=[];
+
+function doLogin(){
+  const pw=document.getElementById('login-password').value;
+  const err=document.getElementById('login-error');
+  if(pw===SENHA){
+    err.textContent='';
+    sessionStart=new Date();
+    document.getElementById('login-screen').style.display='none';
+    const app=document.getElementById('app');
+    app.style.display='flex';
+    const ts=sessionStart.toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+    document.getElementById('header-session').textContent='Sessão: '+ts;
+    ['fill','cons'].forEach(id=>{
+      document.getElementById('op-name-'+id).textContent=currentUser.name;
+      document.getElementById('op-time-'+id).textContent=sessionStart.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+    });
+    loadRegistros().then(()=>{updateStats();preencherUltimos();});
+  }else{
+    err.textContent='Senha incorreta. Tente novamente.';
+    document.getElementById('login-password').value='';
+    document.getElementById('login-password').focus();
+  }
+}
+
+function logout(){
+  if(!confirm('Deseja encerrar a sessão?'))return;
+  document.getElementById('app').style.display='none';
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('login-password').value='';
+}
+
+async function loadRegistros(){
+  try{const r=await window.storage.get(STORAGE_KEY);allRegistros=r?JSON.parse(r.value):[];}
+  catch(e){allRegistros=[];}
+}
+
+async function saveRegistros(){
+  try{await window.storage.set(STORAGE_KEY,JSON.stringify(allRegistros));}
+  catch(e){toast('Erro ao salvar!','error');}
+}
+
+function updateStats(){
+  const tot=allRegistros.length;
+  const cert=allRegistros.filter(r=>r.certificado&&r.certificado.confirmado).length;
+  const med=allRegistros.filter(r=>r.medalha&&r.medalha.confirmado).length;
+  const pend=allRegistros.filter(r=>!(r.certificado&&r.certificado.confirmado)||!(r.medalha&&r.medalha.confirmado)).length;
+  document.getElementById('stat-total').textContent=tot;
+  document.getElementById('stat-cert').textContent=cert;
+  document.getElementById('stat-med').textContent=med;
+  document.getElementById('stat-pend').textContent=pend;
+}
+
+function switchTab(tab,el){
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  if(el)el.classList.add('active');
+  ['home','preenchimento','consulta'].forEach(s=>{
+    document.getElementById('section-'+s).style.display=s===tab?'block':'none';
+  });
+  if(tab==='consulta')buscarTodos();
+  if(tab==='home'){updateStats();}
+}
+
+function onCatChange(){
+  [1,2,3,4].forEach(i=>document.getElementById('fields-cat-'+i).style.display='none');
+  const v=document.getElementById('categoria').value;
+  if(v)document.getElementById('fields-cat-'+v).style.display='block';
+}
+
+function preencherUltimos(){
+  if(allRegistros.length>0){
+    const last=allRegistros[allRegistros.length-1];
+    document.getElementById('categoria').value=last.categoria||'';
+    document.getElementById('data-entrega').value=last.dataEntrega||'';
+    onCatChange();
+  }else{
+    document.getElementById('data-entrega').value=new Date().toISOString().split('T')[0];
+  }
+}
+
+function maskCPF(el){
+  let v=el.value.replace(/\D/g,'').substring(0,11);
+  if(v.length>9)v=v.replace(/^(\d{3})(\d{3})(\d{3})(\d+)$/,'$1.$2.$3-$4');
+  else if(v.length>6)v=v.replace(/^(\d{3})(\d{3})(\d+)$/,'$1.$2.$3');
+  else if(v.length>3)v=v.replace(/^(\d{3})(\d+)$/,'$1.$2');
+  el.value=v;
+}
+
+function getCatLabel(v){return{'1':'1 — Autoridades Civis','2':'2 — Militares do CBMAL','3':'3 — Militares da PMAL','4':'4 — Outros Estados / Coirmãs'}[v]||v;}
+
+function getFormData(){
+  const cat=document.getElementById('categoria').value;
+  const data=document.getElementById('data-entrega').value;
+  if(!cat){toast('Selecione a categoria!','error');return null;}
+  if(!data){toast('Informe a data de entrega!','error');return null;}
+  let dados={};
+  if(cat==='1'){
+    dados.nome=document.getElementById('f1-nome').value.trim();
+    dados.cpf=document.getElementById('f1-cpf').value.trim();
+    if(!dados.nome||!dados.cpf){toast('Preencha Nome e CPF!','error');return null;}
+  }else if(cat==='2'){
+    dados.graduacao=document.getElementById('f2-grad').value.trim();
+    dados.nome=document.getElementById('f2-nome').value.trim();
+    if(!dados.graduacao||!dados.nome){toast('Preencha Graduação e Nome!','error');return null;}
+  }else if(cat==='3'){
+    dados.graduacao=document.getElementById('f3-grad').value.trim();
+    dados.nome=document.getElementById('f3-nome').value.trim();
+    if(!dados.graduacao||!dados.nome){toast('Preencha Graduação e Nome!','error');return null;}
+  }else if(cat==='4'){
+    dados.graduacao=document.getElementById('f4-grad').value.trim();
+    dados.nome=document.getElementById('f4-nome').value.trim();
+    dados.instituicao=document.getElementById('f4-inst').value.trim();
+    if(!dados.graduacao||!dados.nome||!dados.instituicao){toast('Preencha todos os campos!','error');return null;}
+  }
+  return{id:Date.now(),categoria:cat,dataEntrega:data,dados,operador:currentUser.name,criadoEm:new Date().toISOString(),certificado:null,medalha:null};
+}
+
+function salvarRegistro(){
+  const reg=getFormData();if(!reg)return;
+  allRegistros.push(reg);saveRegistros();updateStats();
+  toast('✅ Registro salvo!','success');
+  limparFormulario();preencherUltimos();
+}
+
+function limparFormulario(){
+  ['f1-nome','f1-cpf','f2-grad','f2-nome','f3-grad','f3-nome','f4-grad','f4-nome','f4-inst'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+}
+
+function buscarTodos(){renderResults(allRegistros);}
+
+function buscar(){
+  const ano=document.getElementById('s-ano').value.trim();
+  const nome=document.getElementById('s-nome').value.trim().toLowerCase();
+  const inst=document.getElementById('s-inst').value.trim().toLowerCase();
+  const cpf=document.getElementById('s-cpf').value.trim();
+  renderResults(allRegistros.filter(r=>{
+    if(ano&&!r.dataEntrega.startsWith(ano))return false;
+    if(nome&&!(r.dados.nome||'').toLowerCase().includes(nome))return false;
+    if(inst&&!(r.dados.instituicao||'').toLowerCase().includes(inst))return false;
+    if(cpf&&!(r.dados.cpf||'').includes(cpf.replace(/\D/g,'')))return false;
+    return true;
+  }));
+}
+
+function renderStatusCell(r,field){
+  const item=r[field];
+  if(item&&item.confirmado){
+    return`<div class="status-cell">
+      <label class="status-check" onclick="toggleRemove(${r.id},'${field}')">
+        <input type="checkbox" checked onchange="return false"> Confirmado
+      </label>
+      <div class="status-detail">📅 ${item.data?item.data.split('-').reverse().join('/'):'—'}<br>👤 ${item.recebedor||'—'}<br>🛡️ ${item.operador||'—'}</div>
+    </div>`;
+  }
+  return`<div class="status-cell">
+    <label class="status-check" onclick="openModal(${r.id},'${field}')">
+      <input type="checkbox" onchange="return false"> Não entregue
+    </label>
+  </div>`;
+}
+
+function renderResults(list){
+  const tbody=document.getElementById('results-body');
+  if(!list||list.length===0){
+    tbody.innerHTML='<tr><td colspan="6" class="no-results">Nenhum registro encontrado</td></tr>';return;
+  }
+  tbody.innerHTML=list.map(r=>{
+    const d=r.dados;
+    const dadosCols=[d.graduacao,d.nome,d.cpf,d.instituicao].filter(Boolean).join(' | ');
+    const dataFmt=r.dataEntrega?r.dataEntrega.split('-').reverse().join('/'):'—';
+    return`<tr>
+      <td><span class="cat-badge cat-${r.categoria}" style="margin:0;font-size:.73rem">${getCatLabel(r.categoria)}</span></td>
+      <td style="white-space:nowrap">${dataFmt}</td>
+      <td style="font-size:.83rem">${dadosCols||'—'}</td>
+      <td>${renderStatusCell(r,'certificado')}</td>
+      <td>${renderStatusCell(r,'medalha')}</td>
+      <td style="font-size:.76rem;color:var(--muted)">${r.operador||'—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+function openModal(id,field){
+  pendingModal={id,field};
+  const lbl={certificado:'📜 Confirmar entrega de Certificado',medalha:'🏅 Confirmar entrega de Medalha Física'};
+  document.getElementById('modal-title').textContent=lbl[field]||'Confirmar';
+  document.getElementById('modal-data').value=new Date().toISOString().split('T')[0];
+  document.getElementById('modal-recebedor').value='';
+  document.getElementById('modal-operador').value=currentUser.name;
+  document.getElementById('confirm-modal').style.display='flex';
+}
+function closeModal(){document.getElementById('confirm-modal').style.display='none';pendingModal=null;}
+
+function confirmModal(){
+  if(!pendingModal)return;
+  const data=document.getElementById('modal-data').value;
+  const recebedor=document.getElementById('modal-recebedor').value.trim();
+  if(!data||!recebedor){toast('Preencha data e recebedor!','error');return;}
+  const reg=allRegistros.find(r=>r.id===pendingModal.id);
+  if(reg){reg[pendingModal.field]={confirmado:true,data,recebedor,operador:currentUser.name};saveRegistros();updateStats();toast('✅ Entrega confirmada!','success');buscarTodos();}
+  closeModal();
+}
+
+function toggleRemove(id,field){pendingRemove={id,field};document.getElementById('remove-modal').style.display='flex';}
+function closeRemoveModal(){document.getElementById('remove-modal').style.display='none';pendingRemove=null;}
+function confirmRemove(){
+  if(!pendingRemove)return;
+  const reg=allRegistros.find(r=>r.id===pendingRemove.id);
+  if(reg){reg[pendingRemove.field]=null;saveRegistros();updateStats();toast('Confirmação removida.','info');buscarTodos();}
+  closeRemoveModal();
+}
+
+function exportar(){
+  if(!allRegistros.length){toast('Nenhum registro para exportar.','error');return;}
+  const rows=[['ID','Categoria','Data Entrega','Graduacao/Patente','Nome','CPF','Instituicao','Operador','Criado Em','Certificado-Data','Certificado-Recebedor','Certificado-Operador','Medalha-Data','Medalha-Recebedor','Medalha-Operador']];
+  allRegistros.forEach(r=>{
+    const d=r.dados;const c=r.certificado||{};const m=r.medalha||{};
+    rows.push([r.id,getCatLabel(r.categoria),r.dataEntrega,d.graduacao||'',d.nome||'',d.cpf||'',d.instituicao||'',r.operador||'',r.criadoEm||'',c.data||'',c.recebedor||'',c.operador||'',m.data||'',m.recebedor||'',m.operador||'']);
+  });
+  const csv=rows.map(r=>r.map(v=>`"${String(v||'').replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download='registro_medalhas_'+new Date().toISOString().split('T')[0]+'.csv';a.click();
+  URL.revokeObjectURL(url);toast('📥 CSV exportado!','success');
+}
+
+function triggerImport(){document.getElementById('import-file-input').value='';document.getElementById('import-file-input').click();}
+
+function importarCSV(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      const text=e.target.result.replace(/^\uFEFF/,'');
+      const lines=text.split('\n').filter(l=>l.trim());
+      if(lines.length<2){toast('Arquivo CSV vazio ou inválido.','error');return;}
+      const registrosImportados=[];
+      for(let i=1;i<lines.length;i++){
+        const cols=parseCSVLine(lines[i]);
+        if(cols.length<9)continue;
+        const reg={
+          id:Number(cols[0])||Date.now()+i,
+          categoria:catFromLabel(cols[1]),
+          dataEntrega:cols[2],
+          dados:{graduacao:cols[3],nome:cols[4],cpf:cols[5],instituicao:cols[6]},
+          operador:cols[7],
+          criadoEm:cols[8],
+          certificado:cols[9]?{confirmado:true,data:cols[9],recebedor:cols[10],operador:cols[11]}:null,
+          medalha:cols[12]?{confirmado:true,data:cols[12],recebedor:cols[13],operador:cols[14]}:null
+        };
+        registrosImportados.push(reg);
+      }
+      if(registrosImportados.length===0){toast('Nenhum registro válido encontrado.','error');return;}
+      const existentes=allRegistros.map(r=>r.id);
+      let adicionados=0;
+      registrosImportados.forEach(r=>{
+        if(!existentes.includes(r.id)){allRegistros.push(r);adicionados++;}
+      });
+      saveRegistros();updateStats();
+      toast(`✅ Importados ${adicionados} registro(s) novo(s).`,'success');
+      if(document.getElementById('section-consulta').style.display!=='none')buscarTodos();
+    }catch(err){toast('Erro ao processar o CSV.','error');console.error(err);}
+  };
+  reader.readAsText(file,'UTF-8');
+}
+
+function parseCSVLine(line){
+  const res=[];let cur='';let inQ=false;
+  for(let i=0;i<line.length;i++){
+    const c=line[i];
+    if(c==='"'){if(inQ&&line[i+1]==='"'){cur+='"';i++;}else inQ=!inQ;}
+    else if(c===','&&!inQ){res.push(cur.trim());cur='';}
+    else cur+=c;
+  }
+  res.push(cur.trim());return res;
+}
+
+function catFromLabel(lbl){
+  if(lbl.includes('1')||lbl.toLowerCase().includes('civil'))return'1';
+  if(lbl.includes('2')||lbl.toLowerCase().includes('cbmal'))return'2';
+  if(lbl.includes('3')||lbl.toLowerCase().includes('pmal'))return'3';
+  if(lbl.includes('4')||lbl.toLowerCase().includes('outros')||lbl.toLowerCase().includes('coirm'))return'4';
+  return'1';
+}
+
+function toast(msg,type='success'){
+  const t=document.createElement('div');
+  t.className='toast '+type;t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>{t.style.opacity='0';t.style.transition='opacity .3s';setTimeout(()=>t.remove(),400);},3200);
+}
+
+window.onload=function(){
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('login-password').focus();
+};
+</script>
